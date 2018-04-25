@@ -4,9 +4,21 @@ const session = require('express-session')
 const FileStore = require('session-file-store')(session)
 
 const secret = 'something unbelievable'
+
 const app = express()
 
+app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+
+// Headers middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin) // Clever, not a good practise though..
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  res.header('Access-Control-Allow-Credentials', 'true') // important
+  next()
+})
+
+// Setup session handler
 app.use(session({
   secret,
   saveUninitialized: true,
@@ -20,23 +32,23 @@ const users = [
   { login: 'martine', password: 'rosedamour' }
 ]
 
+// Logger middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`, { user: req.session.user, cookie: req.headers.cookie })
+  next()
+})
+
 app.get('/', (req, res) => {
-  res.setHeader('Content-Type', 'text/html')
-  if (!req.session.user) {
-    return res.end(`
-      <form method="post" action="/sign-in">
-        <label>login: <input name="login"></label>
-        <label>password: <input name="password" type="password"></label>
-        <input type="submit">
-      </form>
-    `)
-  }
-  res.end(`<div>Hi, ${req.session.user.login} <a href="/sign-out">sign out</a></div>`)
+  const user = req.session.user || {}
+
+  res.json(user)
 })
 
 app.post('/sign-in', (req, res, next) => {
+  // does user exists ?
   const user = users.find(u => req.body.login === u.login)
 
+  // Error handling
   if (!user) {
     return next(Error('/sign-in: user not found'))
   }
@@ -45,13 +57,16 @@ app.post('/sign-in', (req, res, next) => {
     return next(Error('/sign-in: wrong password'))
   }
 
+  // else, set the user into the session
   req.session.user = user
-  res.redirect('/')
+
+  res.json(user)
 })
 
 app.get('/sign-out', (req, res, next) => {
-  req.session.user = undefined
-  res.redirect('/')
+  req.session.user = {}
+
+  res.json('ok')
 })
 
 app.listen(3232, () => console.log('started on port 3232'))
