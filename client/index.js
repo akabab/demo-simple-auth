@@ -1,12 +1,18 @@
-const authContainer = document.getElementById('auth')
+const authElement = document.getElementById('auth')
+const messageElement = document.getElementById('message')
 const signInForm = document.getElementById('sign-in-form')
 const signOutForm = document.getElementById('sign-out-form')
 
-handleAuth = user => {
-  authContainer.innerHTML = user.login ? `Hi ${user.login}` : 'Not connected, please login'
+handleAuth = res => {
+  const login = res.login
 
-  signInForm.style.display = user.login ? 'none' : 'block'
-  signOutForm.style.display = user.login ? 'block' : 'none'
+  authElement.innerHTML = login ? `Hi ${login}` : 'Not connected, please login'
+
+  signInForm.style.display = login ? 'none' : 'block'
+  signOutForm.style.display = login ? 'block' : 'none'
+
+  // handle errors
+  messageElement.innerHTML = res.error || ''
 }
 
 signInForm.addEventListener('submit', e => {
@@ -28,7 +34,7 @@ signInForm.addEventListener('submit', e => {
     body: JSON.stringify(credentials)
   })
   .then(res => res.json())
-  .then(user => handleAuth(user))
+  .then(handleAuth)
 })
 
 signOutForm.addEventListener('submit', e => {
@@ -36,11 +42,11 @@ signOutForm.addEventListener('submit', e => {
 
   fetch('http://localhost:3232/sign-out', { 'credentials': 'include' })
     .then(res => res.json())
-    .then(user => handleAuth(user))
+    .then(handleAuth)
 })
 
 
 fetch('http://localhost:3232/', { 'credentials': 'include' })
   .then(res => res.json())
-  .then(user => handleAuth(user))
+  .then(handleAuth)
 

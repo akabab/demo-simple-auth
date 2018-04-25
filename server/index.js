@@ -50,11 +50,11 @@ app.post('/sign-in', (req, res, next) => {
 
   // Error handling
   if (!user) {
-    return next(Error('/sign-in: user not found'))
+    return res.json({ error: 'User not found' })
   }
 
   if (user.password !== req.body.password) {
-    return next(Error('/sign-in: wrong password'))
+    return res.json({ error: 'Wrong password' })
   }
 
   // else, set the user into the session
@@ -67,6 +67,15 @@ app.get('/sign-out', (req, res, next) => {
   req.session.user = {}
 
   res.json('ok')
+})
+
+app.use((err, req, res, next) => {
+  if (err) {
+    res.json({ message: err.message })
+    console.error(err)
+  }
+
+  next(err)
 })
 
 app.listen(3232, () => console.log('started on port 3232'))
