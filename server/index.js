@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 // Setup session handler
 app.use(session({
   secret,
-  saveUninitialized: true,
+  saveUninitialized: false,
   resave: true,
   store: new FileStore({ secret }),
 }))
