@@ -3,7 +3,7 @@ const messageElement = document.getElementById('message')
 const signInForm = document.getElementById('sign-in-form')
 const signOutForm = document.getElementById('sign-out-form')
 
-handleAuth = res => {
+const handleAuth = res => {
   const login = res.login
 
   authElement.innerHTML = login ? `Hi ${login}` : 'Not connected, please login'
