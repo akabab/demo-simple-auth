@@ -26,3 +26,11 @@ Server
 ```
 npm run server
 ```
+
+#### Single node app version
+
+Checkout on [single-app branch](https://github.com/akabab/demo-simple-auth/tree/single-app)
+
+```
+git checkout single-app
+```
