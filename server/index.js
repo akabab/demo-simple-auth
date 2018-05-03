@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 // Setup session handler
 app.use(session({
   secret,
-  saveUninitialized: false,
+  saveUninitialized: true,
   resave: true,
   store: new FileStore({ secret }),
 }))
@@ -50,11 +50,11 @@ app.post('/sign-in', (req, res, next) => {
 
   // Error handling
   if (!user) {
-    return res.json({ error: 'User not found' })
+    return next(Error('User not found'))
   }
 
   if (user.password !== req.body.password) {
-    return res.json({ error: 'Wrong password' })
+    return next(Error('Wrong password'))
   }
 
   // else, set the user into the session
@@ -73,6 +73,7 @@ app.use((err, req, res, next) => {
   if (err) {
     res.json({ message: err.message })
     console.error(err)
+    return
   }
 
   next(err)
